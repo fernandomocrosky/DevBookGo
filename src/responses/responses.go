@@ -10,3 +10,11 @@ func JSON(w http.ResponseWriter, data interface{}) {
 
 	json.NewEncoder(w).Encode(data)
 }
+
+func Error(w http.ResponseWriter, err error) {
+	JSON(w, struct {
+		Erro string
+	}{
+		Erro: err.Error(),
+	})
+}
