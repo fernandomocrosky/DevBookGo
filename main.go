@@ -1,9 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
+
+	"github.com/fernandomocrosky/DevBookGo/src/routes"
 )
 
 func main() {
-	fmt.Println("Hello world")
+	router := routes.GetRouter()
+
+	http.ListenAndServe(":8080", router)
 }
