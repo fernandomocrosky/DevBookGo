@@ -6,7 +6,7 @@ import (
 	"github.com/fernandomocrosky/DevBookGo/src/controllers"
 )
 
-var userRoutes = []Routes{
+var userRoutes = []Route{
 	{
 		URI:           "/users",
 		Method:        http.MethodPost,

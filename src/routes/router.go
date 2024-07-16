@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Routes struct {
+type Route struct {
 	URI           string
 	Method        string
 	HandleFunc    func(w http.ResponseWriter, r *http.Request)
@@ -21,9 +21,10 @@ func GetRouter() *mux.Router {
 
 func CreateRoutes(router *mux.Router) *mux.Router {
 
-	userRoutes := userRoutes
+	routes := userRoutes
+	routes = append(routes, loginRoute)
 
-	for _, route := range userRoutes {
+	for _, route := range routes {
 		router.HandleFunc(route.URI, route.HandleFunc).Methods(route.Method)
 	}
 
