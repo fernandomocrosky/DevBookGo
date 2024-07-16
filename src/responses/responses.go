@@ -2,18 +2,24 @@ package responses
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
-func JSON(w http.ResponseWriter, data interface{}) {
+func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
 
-	json.NewEncoder(w).Encode(data)
+	if data != nil {
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
-func Error(w http.ResponseWriter, err error) {
-	JSON(w, struct {
-		Erro string
+func Error(w http.ResponseWriter, statusCode int, err error) {
+	JSON(w, statusCode, struct {
+		Erro string `json:"error"`
 	}{
 		Erro: err.Error(),
 	})

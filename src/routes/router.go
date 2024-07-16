@@ -1,6 +1,17 @@
 package routes
 
-import "github.com/gorilla/mux"
+import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
+
+type Routes struct {
+	URI           string
+	Method        string
+	HandleFunc    func(w http.ResponseWriter, r *http.Request)
+	Authenticated bool
+}
 
 func GetRouter() *mux.Router {
 	router := mux.NewRouter()
@@ -10,9 +21,9 @@ func GetRouter() *mux.Router {
 
 func CreateRoutes(router *mux.Router) *mux.Router {
 
-	bookRoutes := bookRoutes
+	userRoutes := userRoutes
 
-	for _, route := range bookRoutes {
+	for _, route := range userRoutes {
 		router.HandleFunc(route.URI, route.HandleFunc).Methods(route.Method)
 	}
 
