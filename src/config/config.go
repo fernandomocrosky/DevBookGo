@@ -12,6 +12,7 @@ import (
 var (
 	ConnectionString = ""
 	Port             = 0
+	SecretKey        []byte
 )
 
 func Load() {
@@ -25,6 +26,8 @@ func Load() {
 	if err != nil {
 		log.Fatal("Error loadng Port From .env file: ", err)
 	}
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")

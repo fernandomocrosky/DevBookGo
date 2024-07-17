@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/fernandomocrosky/DevBookGo/src/auth"
 	"github.com/fernandomocrosky/DevBookGo/src/database"
 	"github.com/fernandomocrosky/DevBookGo/src/models"
 	"github.com/fernandomocrosky/DevBookGo/src/repositories"
@@ -105,6 +107,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userIdToken, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if userId != userIdToken {
+		responses.Error(w, http.StatusForbidden, errors.New("access denied, cannot update users that are not yourself"))
+		return
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
@@ -147,6 +160,17 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userIdToken, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if userId != userIdToken {
+		responses.Error(w, http.StatusForbidden, errors.New("acess denied, cannot deleter users that are not yours"))
+		return
+	}
+
 	db, err := database.Connect()
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
@@ -157,6 +181,41 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	repo := repositories.NewUserRepository(db)
 	err = repo.DeleteUser(userId)
 	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	followerId, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	userId, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if followerId == userId {
+		responses.Error(w, http.StatusForbidden, errors.New("access denied, you cannot follow yourself"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewUserRepository(db)
+	if err = repo.FollowUser(followerId, userId); err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}

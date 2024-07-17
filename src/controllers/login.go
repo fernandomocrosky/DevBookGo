@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/fernandomocrosky/DevBookGo/src/auth"
 	"github.com/fernandomocrosky/DevBookGo/src/database"
 	"github.com/fernandomocrosky/DevBookGo/src/models"
 	"github.com/fernandomocrosky/DevBookGo/src/repositories"
@@ -44,9 +45,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, struct {
-		Message string `json:"message"`
+	token, err := auth.CreateToken(storedUser.ID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusAccepted, struct {
+		Token string `json:"token"`
 	}{
-		Message: "Logged in sucessfully",
+		Token: token,
 	})
 }

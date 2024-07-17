@@ -137,3 +137,20 @@ func (repo *UserRepository) GetUserByEmail(email string) (models.User, error) {
 
 	return user, nil
 }
+
+func (repo *UserRepository) FollowUser(followerId, userId uint64) error {
+	statement, err := repo.db.Prepare(`
+		INSERT IGNORE INTO followers
+		    (follower_id, user_id) VALUES (?,?)
+	`)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(followerId, userId); err != nil {
+		return err
+	}
+
+	return nil
+}
