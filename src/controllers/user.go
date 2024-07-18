@@ -13,6 +13,7 @@ import (
 	"github.com/fernandomocrosky/DevBookGo/src/models"
 	"github.com/fernandomocrosky/DevBookGo/src/repositories"
 	"github.com/fernandomocrosky/DevBookGo/src/responses"
+	"github.com/fernandomocrosky/DevBookGo/src/security"
 	"github.com/gorilla/mux"
 )
 
@@ -280,4 +281,94 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, followers)
+}
+
+func GetFollowing(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	userId, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewUserRepository(db)
+	followers, err := repo.GetFollowing(userId)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, followers)
+}
+
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	tokenUserId, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	userId, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if tokenUserId != userId {
+		responses.Error(w, http.StatusUnauthorized, errors.New("access denied, you cannot change other users password"))
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var password models.Password
+	if err := json.Unmarshal(body, &password); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewUserRepository(db)
+	passwordInDb, err := repo.GetPassword(userId)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err = security.CheckHash(passwordInDb, password.OldPassword); err != nil {
+		responses.Error(w, http.StatusUnauthorized, errors.New("invalid password, your old password doesn't match"))
+		return
+	}
+
+	hashedPassword, err := security.Hash(password.NewPassword)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = repo.UpdatePassword(userId, string(hashedPassword)); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }

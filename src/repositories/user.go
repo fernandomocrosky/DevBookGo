@@ -195,3 +195,61 @@ func (repo *UserRepository) GetFollowers(userId uint64) ([]models.User, error) {
 
 	return users, nil
 }
+
+func (repo *UserRepository) GetFollowing(userId uint64) ([]models.User, error) {
+	rows, err := repo.db.Query(`
+		SELECT u.id, u.name, u.nick, u.email, u.created_at
+		FROM users u 
+		INNER JOIN followers f ON u.id = f.user_id WHERE f.follower_id = ?
+	`, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followers []models.User = []models.User{}
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		followers = append(followers, user)
+	}
+
+	return followers, nil
+}
+
+func (repo *UserRepository) GetPassword(userId uint64) (string, error) {
+	row, err := repo.db.Query(`
+		SELECT password FROM users WHERE id = ?
+	`, userId)
+	if err != nil {
+		return "", err
+	}
+	defer row.Close()
+
+	var password string
+	if row.Next() {
+		if err := row.Scan(&password); err != nil {
+			return "", err
+		}
+	}
+
+	return password, nil
+}
+
+func (repo *UserRepository) UpdatePassword(userId uint64, hashedPassword string) error {
+	fmt.Println(userId, hashedPassword)
+	statement, err := repo.db.Prepare(`UPDATE users SET password = ? WHERE id = ?`)
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(hashedPassword, userId); err != nil {
+		return err
+	}
+
+	return nil
+}

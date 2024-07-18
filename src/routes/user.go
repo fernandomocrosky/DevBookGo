@@ -55,4 +55,16 @@ var userRoutes = []Route{
 		HandleFunc:    controllers.GetFollowers,
 		Authenticated: true,
 	},
+	{
+		URI:           "/users/{id}/following",
+		Method:        http.MethodGet,
+		HandleFunc:    controllers.GetFollowing,
+		Authenticated: true,
+	},
+	{
+		URI:           "/users/{id}/update-password",
+		Method:        http.MethodPost,
+		HandleFunc:    controllers.UpdatePassword,
+		Authenticated: true,
+	},
 }
