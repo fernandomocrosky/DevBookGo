@@ -17,3 +17,11 @@ VALUES
     (4, 1),
     (1, 3)
 ;
+
+INSERT INTO posts
+    (title, content, user_id)
+VALUES
+    ("Post From user 1", "This is a post content from user 1", 1),
+    ("Post From user 2", "This is a post content from user 2", 2),
+    ("Post From user 3", "This is a post content from user 3", 3)
+;

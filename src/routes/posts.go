@@ -37,4 +37,10 @@ var postsRoutes = []Route{
 		HandleFunc:    controllers.DeletePost,
 		Authenticated: true,
 	},
+	{
+		URI:           "/users/{userId}/posts",
+		Method:        http.MethodGet,
+		HandleFunc:    controllers.GetPostsByUserId,
+		Authenticated: true,
+	},
 }
