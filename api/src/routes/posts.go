@@ -43,4 +43,16 @@ var postsRoutes = []Route{
 		HandleFunc:    controllers.GetPostsByUserId,
 		Authenticated: true,
 	},
+	{
+		URI:           "/posts/{postId}/like",
+		Method:        http.MethodPost,
+		HandleFunc:    controllers.LikePost,
+		Authenticated: true,
+	},
+	{
+		URI:           "/posts/{postId}/unlike",
+		Method:        http.MethodPost,
+		HandleFunc:    controllers.UnlikePost,
+		Authenticated: true,
+	},
 }
