@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/login.css" />
+    <title>User Register</title>
+  </head>
+  <body>
+    <div class="container-login">
+      <div>
+        <form class="devbook-form" id="register-form" action="POST">
+          <span>Register Now</span>
+          <div>
+            <input type="text" name="name" id="name" placeholder="Type your Name" required />
+          </div>
+          <div>
+            <input type="text" name="email" id="email" placeholder="Type your email" required />
+          </div>
+
+          <div>
+            <input type="text" name="nick" id="nick" placeholder="Type your Nick" required />
+          </div>
+
+          <div>
+            <input type="password" name="password" id="password" placeholder="Type your password" required />
+          </div>
+          <div>
+            <input
+              type="password"
+              name="confirm-password"
+              id="confirm-password"
+              placeholder="Confirm your password"
+              required />
+          </div>
+
+          <a href="/login">Click here to make login</a>
+          <button type="submit" class="btn btn-devbook">Register</button>
+        </form>
+      </div>
+    </div>
+    <script src="/assets/js/jquery.js"></script>
+    <script src="/assets/js/register.js"></script>
+  </body>
+</html>

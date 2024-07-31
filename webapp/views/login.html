@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/login.css" />
+    <title>DevBook - Login</title>
+  </head>
+  <body>
+    <div class="container-login">
+      <div>
+        <form class="devbook-form" id="login">
+          <span>Welcome to DevBook</span>
+          <div>
+            <input type="text" name="email" id="email" placeholder="Type your email" required />
+          </div>
+
+          <div>
+            <input type="password" name="password" id="password" placeholder="Type your password" required />
+          </div>
+
+          <a href="/create-user">Click here to register your account</a>
+          <button type="submit" class="btn btn-devbook">Login</button>
+        </form>
+      </div>
+    </div>
+    <script src="/assets/js/jquery.js"></script>
+    <script src="/assets/js/login.js"></script>
+  </body>
+</html>
