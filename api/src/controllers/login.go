@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/fernandomocrosky/DevBookGo/src/auth"
 	"github.com/fernandomocrosky/DevBookGo/src/database"
@@ -50,9 +51,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
-	responses.JSON(w, http.StatusAccepted, struct {
-		Token string `json:"token"`
-	}{
+
+	userId := strconv.FormatUint(storedUser.ID, 10)
+
+	responses.JSON(w, http.StatusOK, models.AuthData{
+		ID:    userId,
 		Token: token,
 	})
 }

@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
+	"webapp/src/config"
+	"webapp/src/cookies"
+	"webapp/src/models"
 	"webapp/src/responses"
 )
 
@@ -21,15 +23,31 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		responses.JSON(w, http.StatusBadRequest, responses.ErrorAPI{Error: err.Error()})
 		return
 	}
+	url := fmt.Sprintf("%s/login", config.APIURL)
 
-	response, err := http.Post("http://localhost:8000/login", "application/json", bytes.NewBuffer(user))
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(user))
 	if err != nil {
 		responses.JSON(w, http.StatusInternalServerError, responses.ErrorAPI{Error: err.Error()})
 		return
 	}
 	defer response.Body.Close()
 
-	token, _ := io.ReadAll(response.Body)
+	if response.StatusCode >= 400 {
+		responses.StatusCodeErrorHandler(w, response)
+		return
+	}
 
-	fmt.Println(response.StatusCode, string(token))
+	var authData models.AuthData
+
+	if err := json.NewDecoder(response.Body).Decode(&authData); err != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+
+	if err = cookies.Save(w, authData.ID, authData.Token); err != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, nil)
 }

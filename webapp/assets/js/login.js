@@ -8,7 +8,7 @@ function login(event) {
     method: 'POST',
     data: {
       email: $('#email').val(),
-      passworld: $('#passworld').val(),
+      password: $('#password').val(),
     },
   })
     .done(function () {
